@@ -11,5 +11,6 @@ module.exports = function (req, res, next) {
     });
   }
 
+  req.tokenInfo = data;
   return next();
 };
