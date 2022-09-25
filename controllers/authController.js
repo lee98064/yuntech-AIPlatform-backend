@@ -33,6 +33,7 @@ router.post("/auth/login", async (req, res) => {
       return res.json({
         status: true,
         token: JWT.generate_token({
+          type: "student",
           id,
           studentID,
           email,
