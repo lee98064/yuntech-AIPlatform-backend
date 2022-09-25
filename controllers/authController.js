@@ -4,12 +4,13 @@ const bcrypt = require("bcrypt");
 const JWT = require("../services/jwt");
 const { Op } = require("sequelize");
 const { Student } = require("../models");
+const authentication = require("../middlewares/authentication");
 
 router.post("/auth/login", async (req, res) => {
   var { studentID, password } = req.body;
 
   // 把學號第一碼大寫
-  studentID = studentID.toUpperCase()
+  studentID = studentID.toUpperCase();
 
   // 檢查帳號是否存在
   let isExisted = await Student.count({
@@ -79,6 +80,12 @@ router.post("/auth/register", async (req, res) => {
   });
 
   return res.json({ status: true, message: "註冊成功，請前往收信確認！" });
+});
+
+router.get("/auth/isLogin", authentication, async (req, res) => {
+  return res.json({
+    status: true,
+  });
 });
 
 module.exports = router;
