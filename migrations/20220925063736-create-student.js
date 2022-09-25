@@ -22,11 +22,11 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING,
       },
-      account: {
-        unique: true,
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
+      // account: {
+      //   unique: true,
+      //   allowNull: false,
+      //   type: Sequelize.STRING,
+      // },
       password: {
         allowNull: false,
         type: Sequelize.STRING,

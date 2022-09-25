@@ -6,23 +6,28 @@ const { Op } = require("sequelize");
 const { Student } = require("../models");
 
 router.post("/auth/login", async (req, res) => {
-  const { account, password } = req.body;
+  var { studentID, password } = req.body;
 
+  // 把學號第一碼大寫
+  studentID = studentID.toUpperCase()
+
+  // 檢查帳號是否存在
   let isExisted = await Student.count({
-    where: { account },
+    where: { studentID },
   });
 
   // 檢查帳號是否存在
   if (isExisted) {
     let student = await Student.findOne({
-      where: { account },
+      where: { studentID },
     });
 
     // 比對密碼
     let result = await bcrypt.compare(password, student.password);
 
-    const { id, studentID, email, phone, lineID } = student;
+    const { id, email, phone, lineID } = student;
 
+    // 如果比對正確
     if (result) {
       return res.json({
         status: true,
@@ -30,7 +35,6 @@ router.post("/auth/login", async (req, res) => {
           id,
           studentID,
           email,
-          account,
           phone,
           lineID,
         }),
@@ -45,7 +49,7 @@ router.post("/auth/login", async (req, res) => {
 });
 
 router.post("/auth/register", async (req, res) => {
-  const { studentID, email, name, account, password, phone, lineID } = req.body;
+  const { studentID, email, name, password, phone, lineID } = req.body;
 
   // 檢查是否存在
   let isExisted = await Student.count({
@@ -53,7 +57,6 @@ router.post("/auth/register", async (req, res) => {
       [Op.or]: {
         email,
         studentID,
-        account,
       },
     },
   });
@@ -70,8 +73,8 @@ router.post("/auth/register", async (req, res) => {
     studentID,
     email,
     name,
-    account,
     password: password_hash,
+    lineID,
     phone,
   });
 
