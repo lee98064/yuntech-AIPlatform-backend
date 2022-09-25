@@ -20,6 +20,12 @@ router.get("/posts/:id", async (req, res) => {
     where: { id: req.params.id, isOpen: 1 },
   });
 
+  if (post === null) {
+    return res.status(404).json({
+      message: "Not Found!",
+    });
+  }
+
   return res.status(200).json(post);
 });
 
