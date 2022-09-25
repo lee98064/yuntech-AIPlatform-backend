@@ -4,6 +4,8 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const authController = require("./controllers/authController.js");
 const postController = require("./controllers/postController.js");
+const signUpController = require("./controllers/signUpController.js");
+const authentication = require("./middlewares/authentication");
 
 dotenv.config();
 
@@ -20,6 +22,7 @@ app.get("/", (req, res) => {
 
 app.use("/api", authController);
 app.use("/api", postController);
+app.use("/api", authentication, signUpController);
 
 app.listen(port, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
