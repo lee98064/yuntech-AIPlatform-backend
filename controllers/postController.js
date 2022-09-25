@@ -7,6 +7,7 @@ const { Post } = require("../models");
 
 router.get("/posts", async (req, res) => {
   let rawPosts = await Post.findAll({
+    attributes: ["id", "title", "content", "createdAt", "updatedAt"],
     where: {
       isOpen: 1,
     },
@@ -17,6 +18,7 @@ router.get("/posts", async (req, res) => {
 
 router.get("/posts/:id", async (req, res) => {
   let post = await Post.findOne({
+    attributes: ["id", "title", "content", "createdAt", "updatedAt"],
     where: { id: req.params.id, isOpen: 1 },
   });
 
