@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const JWT = require("../services/jwt");
 const { Op } = require("sequelize");
-const { Student } = require("../models");
+const { Student, PasswordReset } = require("../models");
 const authentication = require("../middlewares/authentication");
 
 router.post("/auth/login", async (req, res) => {
@@ -88,6 +88,50 @@ router.post("/auth/register", async (req, res) => {
   });
 
   return res.json({ status: true, message: "註冊成功，請前往收信確認！" });
+});
+
+router.post("/auth/resetPassword", async (req, res) => {
+  const { token, password } = req.body;
+  const passwordReset = await PasswordReset.findOne({
+    where: {
+      token,
+    },
+  });
+
+  if (passwordReset == null) {
+    return res
+      .status(404)
+      .json({ status: false, message: "此Token失效或不存在，請重新申請！" });
+  }
+
+  // 檢查是否超過一天
+  createDate = Date.parse(passwordReset.createdAt);
+  nowDate = Date.parse(new Date());
+  iDays = parseInt(Math.abs(nowDate - createDate) / 1000 / 60 / 60 / 24);
+  if (iDays > 1) {
+    await passwordReset.destroy();
+    return res
+      .status(404)
+      .json({ status: false, message: "此Token失效或不存在，請重新申請！" });
+  }
+
+  // hash Password
+  let password_hash = await bcrypt.hash(password, 10);
+  const student = await Student.update(
+    {
+      password: password_hash,
+    },
+    {
+      where: {
+        id: passwordReset.StudentId,
+      },
+    }
+  );
+  await passwordReset.destroy();
+  return res.json({
+    status: true,
+    message: "密碼設定成功！",
+  });
 });
 
 router.get("/auth/isLogin", authentication, async (req, res) => {

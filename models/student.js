@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Student.belongsTo(models.Group);
+      Student.hasMany(models.PasswordReset);
     }
   }
   Student.init(
