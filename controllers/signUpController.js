@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { Student, Group } = require("../models");
 
-router.get("/signUp", async (req, res) => {
+router.post("/signUp", async (req, res) => {
   const tokenInfo = req.tokenInfo;
   const student = await Student.findOne({
     where: { id: tokenInfo.id },
@@ -17,6 +17,29 @@ router.get("/signUp", async (req, res) => {
   });
 
   return res.json(student);
+});
+
+router.get("/signUp/checkStudentId", async (req, res) => {
+  const { studentID } = req.body;
+
+  const student = await Student.findOne({
+    where: {
+      studentID,
+    },
+  });
+
+  // 沒註冊過
+  if (student == null) {
+    return res.sendStatus(404);
+  }
+
+  // 註冊過也是其他組組員
+  if (student.GroupId != null) {
+    return res.sendStatus(409);
+  }
+
+  // 有註冊過但不屬於任何一組
+  return res.sendStatus(200);
 });
 
 module.exports = router;
