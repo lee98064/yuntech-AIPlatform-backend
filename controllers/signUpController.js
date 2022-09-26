@@ -3,6 +3,7 @@ const router = express.Router();
 const { Student, Group } = require("../models");
 const verifySignUpData = require("../middlewares/verifySignUpData");
 const notSignUp = require("../middlewares/notSignUp");
+const Mailer = require("../services/mailer");
 
 router.post("/signUp", notSignUp, verifySignUpData, async (req, res) => {
   const { members } = req.body;
@@ -28,11 +29,12 @@ router.post("/signUp", notSignUp, verifySignUpData, async (req, res) => {
       where: { studentID: member.studentID },
     }).then(function (obj) {
       // update
-      if (obj)
+      if (obj) {
         return obj.update({
           GroupId: group.id,
           isLeader: tokenInfo.studentID == member.studentID && index == 0,
         });
+      }
 
       // insert
       return Student.create({
@@ -42,13 +44,31 @@ router.post("/signUp", notSignUp, verifySignUpData, async (req, res) => {
         email: member.email,
       });
     });
+
+    let content = "";
+    if (student.password == null) {
+      content = `
+        您好,${student.name} 同學： <br>
+        我們已收到您的報名資訊，以下是登入網址，請先前往設定密碼後，再上傳您的學生證與相關資料：<br>
+        <a href="${process.env.DOMAIN}">點我前往設定密碼</a>
+      `;
+    } else {
+      content = `
+        您好,${student.name} 同學： <br>
+        我們已收到您的報名資訊，以下是登入網址，請前往上傳您的學生證與相關資料：<br>
+        <a href="${process.env.DOMAIN}">點我前往填寫相關資料</a>
+      `;
+    }
+
+    const mailer = new Mailer();
+    mailer.sendMail("lee98064@gmail.com", "AI 報名平台報名資料", content);
   }
+
   return res.json({
     status: true,
     message: "報名成功！",
   });
 });
-notSignUp;
 
 router.get("/signUp/isSignUp", async (req, res) => {
   const tokenInfo = req.tokenInfo;
