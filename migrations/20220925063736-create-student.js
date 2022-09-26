@@ -28,7 +28,7 @@ module.exports = {
       //   type: Sequelize.STRING,
       // },
       password: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.STRING,
       },
       phone: {
@@ -41,6 +41,11 @@ module.exports = {
       },
       studentImg: {
         type: Sequelize.STRING,
+      },
+      isLeader: {
+        allowNull: false,
+        defaultValue: 0,
+        type: Sequelize.BOOLEAN,
       },
       isVerify: {
         allowNull: false,
