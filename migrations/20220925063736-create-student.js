@@ -32,7 +32,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       phone: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.STRING,
       },
       lineID: {
@@ -40,6 +40,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       studentImg: {
+        allowNull: true,
         type: Sequelize.STRING,
       },
       isLeader: {
