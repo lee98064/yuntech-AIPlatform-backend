@@ -9,6 +9,13 @@ const authentication = require("../middlewares/authentication");
 router.post("/auth/login", async (req, res) => {
   var { studentID, password } = req.body;
 
+  if (password == "") {
+    return res.status(401).json({
+      status: false,
+      message: "登入失敗！請檢查帳號或密碼！",
+    });
+  }
+
   // 把學號第一碼大寫
   studentID = studentID.toUpperCase();
 

@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const authController = require("./controllers/authController.js");
 const postController = require("./controllers/postController.js");
+const userController = require("./controllers/userController.js");
 const signUpController = require("./controllers/signUpController.js");
 const authentication = require("./middlewares/authentication");
 
@@ -22,6 +23,7 @@ app.get("/", (req, res) => {
 
 app.use("/api", authController);
 app.use("/api", postController);
+app.use("/api", authentication, userController);
 app.use("/api", authentication, signUpController);
 
 app.listen(port, () => {
