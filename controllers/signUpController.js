@@ -48,8 +48,32 @@ router.post("/signUp", notSignUp, verifySignUpData, async (req, res) => {
     message: "報名成功！",
   });
 });
+notSignUp;
 
-router.get("/signUp/checkStudentId", async (req, res) => {
+router.get("/signUp/isSignUp", async (req, res) => {
+  const tokenInfo = req.tokenInfo;
+  const student = await Student.findOne({
+    where: {
+      id: tokenInfo.id,
+    },
+  });
+
+  if (student.GroupId == null) {
+    return res.json({
+      status: true,
+      isSignUp: false,
+      message: "尚未報名！",
+    });
+  }
+
+  return res.status(409).json({
+    status: false,
+    isSignUp: true,
+    message: "您已報名過！",
+  });
+});
+
+router.get("/signUp/checkStudentId", notSignUp, async (req, res) => {
   const { studentID } = req.body;
 
   const student = await Student.findOne({

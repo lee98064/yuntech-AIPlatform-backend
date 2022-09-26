@@ -12,6 +12,6 @@ module.exports = async function (req, res, next) {
 
   return res.status(409).json({
     status: false,
-    message: "您已報名過，無法重複報名！",
+    message: "您已報名過，將無法使用此功能！",
   });
 };
