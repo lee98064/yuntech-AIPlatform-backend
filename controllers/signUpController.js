@@ -26,6 +26,7 @@ router.post("/signUp", notSignUp, verifySignUpData, async (req, res) => {
   });
 
   for (let [index, member] of members.entries()) {
+    member.studentID = member.studentID.toUpperCase();
     const student = await Student.findOne({
       where: { studentID: member.studentID },
     }).then(function (obj) {
@@ -71,13 +72,13 @@ router.post("/signUp", notSignUp, verifySignUpData, async (req, res) => {
       content = `
         您好,${student.name} 同學： <br>
         我們已收到您的報名資訊，以下是登入網址，請先前往設定密碼後，再上傳您的學生證與相關資料：<br>
-        <a href="${process.env.DOMAIN}/auth/passwordReset?token=${passwordReset.token}">點我前往設定密碼</a>
+        <a href="${process.env.FRONTEND_DOMAIN}/auth/passwordReset?token=${passwordReset.token}">點我前往設定密碼</a>
       `;
     } else {
       content = `
         您好,${student.name} 同學： <br>
         我們已收到您的報名資訊，以下是登入網址，請前往上傳您的學生證與相關資料：<br>
-        <a href="${process.env.DOMAIN}">點我前往填寫相關資料</a>
+        <a href="${process.env.FRONTEND_DOMAIN}">點我前往填寫相關資料</a>
       `;
     }
 

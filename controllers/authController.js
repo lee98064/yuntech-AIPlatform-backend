@@ -5,6 +5,8 @@ const JWT = require("../services/jwt");
 const { Op } = require("sequelize");
 const { Student, PasswordReset } = require("../models");
 const authentication = require("../middlewares/authentication");
+const Mailer = require("../services/mailer");
+const RandomString = require("../services/randomString");
 
 router.post("/auth/login", async (req, res) => {
   var { studentID, password } = req.body;
@@ -65,7 +67,7 @@ router.post("/auth/register", async (req, res) => {
     where: {
       [Op.or]: {
         email,
-        studentID,
+        studentID: studentID.toUpperCase(),
       },
     },
   });
@@ -79,7 +81,7 @@ router.post("/auth/register", async (req, res) => {
   // hash Password
   let password_hash = await bcrypt.hash(password, 10);
   const student = await Student.create({
-    studentID,
+    studentID: studentID.toUpperCase(),
     email,
     name,
     password: password_hash,
@@ -88,6 +90,65 @@ router.post("/auth/register", async (req, res) => {
   });
 
   return res.json({ status: true, message: "註冊成功，請前往收信確認！" });
+});
+
+router.post("/auth/forget", async (req, res) => {
+  const { studentID, email } = req.body;
+
+  const student = await Student.findOne({
+    where: {
+      studentID: studentID.toUpperCase(),
+      email,
+    },
+  });
+
+  if (student == null) {
+    return res
+      .status(404)
+      .json({ status: false, message: "此學號和Email不存在！" });
+  }
+
+  let token = "";
+  while (true) {
+    token = RandomString.generateRandomString(30);
+
+    const isExisted = await PasswordReset.count({
+      where: {
+        token,
+      },
+    });
+
+    if (!isExisted) {
+      break;
+    }
+  }
+
+  // 刪除舊Token
+  await PasswordReset.destroy({
+    where: {
+      StudentId: student.id,
+    },
+  });
+
+  const passwordReset = await PasswordReset.create({
+    token,
+    StudentId: student.id,
+  });
+
+  let content = `
+        您好,${student.name} 同學： <br>
+        我們已收到您要求重設密碼，以下是重設網址：<br>
+        <a href="${process.env.FRONTEND_DOMAIN}/auth/reset?token=${passwordReset.token}">點我前往重設密碼</a><br>
+        <h3 color="red">請注意！如果非本人操作請勿理會！</h3>
+      `;
+
+  const mailer = new Mailer();
+  mailer.sendMail("lee98064@gmail.com", "AI 報名平台報名資料", content);
+
+  return res.json({
+    status: true,
+    message: "已送出重設信，請前往收信！",
+  });
 });
 
 router.post("/auth/resetPassword", async (req, res) => {
