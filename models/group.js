@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   Group.init(
     {
       name: DataTypes.STRING,
+      inviteCode: DataTypes.STRING,
       isVerify: DataTypes.BOOLEAN,
     },
     {

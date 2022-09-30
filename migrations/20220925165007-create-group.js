@@ -18,6 +18,11 @@ module.exports = {
         defaultValue: 0,
         type: Sequelize.BOOLEAN,
       },
+      inviteCode: {
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: false,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
