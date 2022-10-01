@@ -8,6 +8,7 @@ const RandomString = require("../services/randomString");
 
 router.post("/signUp/createGroup", async (req, res) => {
   const tokenInfo = req.tokenInfo;
+  const { groupName } = req.body;
 
   const student = await Student.findOne({
     where: {
@@ -37,23 +38,25 @@ router.post("/signUp/createGroup", async (req, res) => {
     }
   }
 
-  const groupLast = await Group.findOne({
-    attributes: ["id"],
-    order: [["id", "DESC"]],
-  });
+  // const groupLast = await Group.findOne({
+  //   attributes: ["id"],
+  //   order: [["id", "DESC"]],
+  // });
 
-  let groupLastId = 1;
-  if (groupLast != null) {
-    groupLastId = groupLast.id + 1;
-  }
+  // let groupLastId = 1;
+  // if (groupLast != null) {
+  //   groupLastId = groupLast.id + 1;
+  // }
 
   // 建立組別
   const group = await Group.create({
-    id: groupLastId,
-    name: `${process.env.GROUP_NAME_PREFIX}${groupLastId}`,
+    // id: groupLastId,
+    // name: `${process.env.GROUP_NAME_PREFIX}${groupLastId}`,
+    name: groupName,
     inviteCode,
   });
 
+  student.isLeader = true;
   student.GroupId = group.id;
 
   await student.save();
@@ -77,7 +80,7 @@ router.post("/signUp/joinGroup", async (req, res) => {
   if (group == null) {
     return res.status(404).json({
       status: false,
-      message: "邀請碼已被註冊！",
+      message: "邀請碼不存在！",
     });
   }
 
@@ -93,6 +96,32 @@ router.post("/signUp/joinGroup", async (req, res) => {
   return res.json({
     status: true,
     message: "成功加入團隊！",
+  });
+});
+
+router.get("/signUp/isInGroup", async (req, res) => {
+  const tokenInfo = req.tokenInfo;
+
+  const student = await Student.findOne({
+    where: {
+      id: tokenInfo.id,
+    },
+  });
+
+  console.log(student);
+
+  if (student.GroupId == null) {
+    return res.json({
+      status: true,
+      isInGroup: false,
+      message: "尚未加入任何組別！",
+    });
+  }
+
+  return res.json({
+    status: true,
+    isInGroup: true,
+    message: "已有組別！",
   });
 });
 
