@@ -86,6 +86,17 @@ router.post("/user/upload", async (req, res) => {
 
     await student.save();
 
+    await Group.update(
+      {
+        isVerify: false,
+      },
+      {
+        where: {
+          id: student.GroupId,
+        },
+      }
+    );
+
     //send response
     res.send({
       status: true,
@@ -115,6 +126,36 @@ router.get("/user/studentImg", async (req, res) => {
   }
 
   res.download(student.studentImg); // Set disposition and send it.
+});
+
+router.patch("/user/edit", async (req, res) => {
+  const tokenInfo = req.tokenInfo;
+  const { email, name, phone, lineID } = req.body;
+
+  const student = await Student.update(
+    {
+      email,
+      name,
+      phone,
+      lineID,
+    },
+    {
+      where: {
+        id: tokenInfo.id,
+      },
+    }
+  )
+    .then((result) => {})
+    .catch((err) => {
+      return res.status(500).json({
+        status: false,
+        message: "更新失敗，請檢查欄位是否都有填上！",
+      });
+    });
+  return res.json({
+    status: true,
+    message: "更新成功！",
+  });
 });
 
 module.exports = router;
