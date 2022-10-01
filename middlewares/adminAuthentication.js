@@ -1,7 +1,12 @@
 const JWT = require("../services/jwt");
 
 module.exports = function (req, res, next) {
-  const { token } = req.body;
+  let token = req.cookies.adminToken;
+
+  if (token == undefined) {
+    token = req.body.adminToken;
+  }
+
   const [status, data] = JWT.verify_token(token);
 
   if (!status || data.type != "admin") {
