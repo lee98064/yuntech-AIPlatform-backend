@@ -12,6 +12,7 @@ const authentication = require("./middlewares/authentication");
 // admin
 const adminAuthController = require("./controllers/admin/authController");
 const adminVerifyController = require("./controllers/admin/verifyController");
+const adminGroupController = require("./controllers/admin/groupController");
 const adminAuthentication = require("./middlewares/adminAuthentication");
 
 dotenv.config();
@@ -31,6 +32,7 @@ app.get("/", (req, res) => {
 // admin
 app.use("/api/admin", adminAuthController);
 app.use("/api/admin", adminAuthentication, adminVerifyController);
+app.use("/api/admin", adminAuthentication, adminGroupController);
 
 app.use("/api", authController);
 app.use("/api", postController);
