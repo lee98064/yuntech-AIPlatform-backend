@@ -3,6 +3,7 @@ const router = express.Router();
 const fs = require("fs");
 const { Op } = require("sequelize");
 const { Student, Group } = require("../../models");
+const Mailer = require("../../services/mailer");
 
 router.get("/verify", async (req, res) => {
   const students = await Student.findAll({
