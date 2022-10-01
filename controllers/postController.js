@@ -4,10 +4,25 @@ const bcrypt = require("bcrypt");
 const JWT = require("../services/jwt");
 const { Op } = require("sequelize");
 const { Post } = require("../models");
+const sequelize = require("sequelize");
 
 router.get("/posts", async (req, res) => {
   let rawPosts = await Post.findAll({
-    attributes: ["id", "title", "content", "createdAt", "updatedAt"],
+    attributes: [
+      "id",
+      "title",
+      "content",
+      [
+        sequelize.fn(
+          "strftime",
+          "%Y-%m-%d %H:%M:%S",
+          sequelize.col("createdAt")
+        ),
+        "dateTime",
+      ],
+      "createdAt",
+      "updatedAt",
+    ],
     where: {
       isOpen: 1,
     },
@@ -18,8 +33,22 @@ router.get("/posts", async (req, res) => {
 
 router.get("/posts/:id", async (req, res) => {
   let post = await Post.findOne({
-    attributes: ["id", "title", "content", "createdAt", "updatedAt"],
-    where: { id: req.params.id, isOpen: 1 },
+    attributes: [
+      "id",
+      "title",
+      "content",
+      [
+        sequelize.fn(
+          "strftime",
+          "%Y-%m-%d %H:%M:%S",
+          sequelize.col("createdAt")
+        ),
+        "dateTime",
+      ],
+      "createdAt",
+      "updatedAt",
+    ],
+    where: { id: req.params.id, isOpen: true },
   });
 
   if (post === null) {
