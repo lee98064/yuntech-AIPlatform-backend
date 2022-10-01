@@ -83,6 +83,16 @@ router.post("/verify/pass", async (req, res) => {
     await group.save();
   }
 
+  let content = `
+        您好,${student.name} 同學： <br>
+        您的學生證審核結果為：通過審核<br>
+        感謝您報名參加競賽，後續最新消息將公佈在網頁上！
+        <a href="${process.env.FRONTEND_DOMAIN}/">點我前往網頁</a><br>
+      `;
+
+  const mailer = new Mailer();
+  mailer.sendMail(student.email, "AI 賽車報名平台", content);
+
   return res.status(200).json({ status: true });
 });
 
@@ -98,6 +108,16 @@ router.post("/verify/unpass", async (req, res) => {
 
   student.studentImg = null;
   await student.save();
+
+  let content = `
+        您好,${student.name} 同學： <br>
+        您的學生證審核結果為：未通過審核<br>
+        原因：${reason} <br>
+        <a href="${process.env.FRONTEND_DOMAIN}/">點我前往重新上傳</a><br>
+      `;
+
+  const mailer = new Mailer();
+  mailer.sendMail(student.email, "AI 賽車報名平台", content);
 
   return res.status(200).json({ status: true });
 });

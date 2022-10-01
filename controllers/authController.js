@@ -143,7 +143,7 @@ router.post("/auth/forget", async (req, res) => {
       `;
 
   const mailer = new Mailer();
-  mailer.sendMail("lee98064@gmail.com", "AI 報名平台報名資料", content);
+  mailer.sendMail(student.email, "AI 報名平台報名資料", content);
 
   return res.json({
     status: true,
