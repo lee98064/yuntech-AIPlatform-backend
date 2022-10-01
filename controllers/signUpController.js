@@ -115,6 +115,9 @@ router.post("/signUp/joinGroup", async (req, res) => {
   student.isLeader = false;
   await student.save();
 
+  group.isVerify = false;
+  await group.save();
+
   return res.json({
     status: true,
     message: "成功加入團隊！",
