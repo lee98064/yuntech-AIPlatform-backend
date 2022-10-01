@@ -38,19 +38,19 @@ router.post("/signUp/createGroup", async (req, res) => {
     }
   }
 
-  // const groupLast = await Group.findOne({
-  //   attributes: ["id"],
-  //   order: [["id", "DESC"]],
-  // });
+  const groupLast = await Group.findOne({
+    attributes: ["id"],
+    order: [["id", "DESC"]],
+  });
 
-  // let groupLastId = 1;
-  // if (groupLast != null) {
-  //   groupLastId = groupLast.id + 1;
-  // }
+  let groupLastId = 1;
+  if (groupLast != null) {
+    groupLastId = groupLast.id + 1;
+  }
 
   // 建立組別
   const group = await Group.create({
-    // id: groupLastId,
+    id: groupLastId,
     // name: `${process.env.GROUP_NAME_PREFIX}${groupLastId}`,
     name: groupName,
     inviteCode,
