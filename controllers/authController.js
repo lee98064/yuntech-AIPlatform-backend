@@ -138,7 +138,7 @@ router.post("/auth/forget", async (req, res) => {
   let content = `
         您好,${student.name} 同學： <br>
         我們已收到您要求重設密碼，以下是重設網址：<br>
-        <a href="${process.env.FRONTEND_DOMAIN}/auth/reset?token=${passwordReset.token}">點我前往重設密碼</a><br>
+        <a href="${process.env.FRONTEND_DOMAIN}/auth/resetPassword?token=${passwordReset.token}">點我前往重設密碼</a><br>
         <h3 color="red">請注意！如果非本人操作請勿理會！</h3>
       `;
 
@@ -153,6 +153,11 @@ router.post("/auth/forget", async (req, res) => {
 
 router.post("/auth/resetPassword", async (req, res) => {
   const { token, password } = req.body;
+
+  if (password == undefined || password == null || password == "") {
+    return res.status(403).json({ status: false, message: "密碼不可為空！" });
+  }
+
   const passwordReset = await PasswordReset.findOne({
     where: {
       token,
