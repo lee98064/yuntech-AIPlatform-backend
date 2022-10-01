@@ -75,12 +75,33 @@ router.post("/signUp/joinGroup", async (req, res) => {
     where: {
       inviteCode,
     },
+    include: [
+      {
+        attributes: {
+          exclude: [
+            "studentImg",
+            "password",
+            "GroupId",
+            "createdAt",
+            "updatedAt",
+          ],
+        },
+        model: Student,
+      },
+    ],
   });
 
   if (group == null) {
     return res.status(404).json({
       status: false,
       message: "邀請碼不存在！",
+    });
+  }
+
+  if (group.Students.length >= parseInt(process.env.GROUP_MEMBER_MAX)) {
+    return res.status(403).json({
+      status: false,
+      message: "該隊已滿人！",
     });
   }
 
@@ -91,7 +112,8 @@ router.post("/signUp/joinGroup", async (req, res) => {
   });
 
   student.GroupId = group.id;
-  student.save();
+  student.isLeader = false;
+  await student.save();
 
   return res.json({
     status: true,
@@ -107,8 +129,6 @@ router.get("/signUp/isInGroup", async (req, res) => {
       id: tokenInfo.id,
     },
   });
-
-  console.log(student);
 
   if (student.GroupId == null) {
     return res.json({
