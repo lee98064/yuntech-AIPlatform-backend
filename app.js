@@ -9,6 +9,11 @@ const userController = require("./controllers/userController.js");
 const signUpController = require("./controllers/signUpController.js");
 const authentication = require("./middlewares/authentication");
 
+// admin
+const adminAuthController = require("./controllers/admin/authController");
+const adminVerifyController = require("./controllers/admin/verifyController");
+const adminAuthentication = require("./middlewares/adminAuthentication");
+
 dotenv.config();
 
 const app = express();
@@ -22,6 +27,10 @@ app.use(fileUpload({ createParentPath: true }));
 app.get("/", (req, res) => {
   res.send("What are you doing?");
 });
+
+// admin
+app.use("/api/admin", adminAuthController);
+app.use("/api/admin", adminAuthentication, adminVerifyController);
 
 app.use("/api", authController);
 app.use("/api", postController);
