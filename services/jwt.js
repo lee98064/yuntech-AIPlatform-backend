@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 class JWT {
   static generate_token(data) {
     return jwt.sign(data, process.env.JWT_SIGN_SECRET, {
-      expiresIn: "18000s",
+      expiresIn: "1800s",
     });
   }
 
