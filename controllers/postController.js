@@ -8,6 +8,7 @@ const sequelize = require("sequelize");
 
 router.get("/posts", async (req, res) => {
   let rawPosts = await Post.findAll({
+    order: [["id", "DESC"]],
     attributes: [
       "id",
       "title",
@@ -51,7 +52,7 @@ router.get("/posts/:id", async (req, res) => {
     where: { id: req.params.id, isOpen: true },
   });
 
-  if (post === null) {
+  if (post == null) {
     return res.status(404).json({
       message: "Not Found!",
     });

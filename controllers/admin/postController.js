@@ -2,9 +2,28 @@ const express = require("express");
 const router = express.Router();
 const { Op } = require("sequelize");
 const { Post } = require("../../models");
+const sequelize = require("sequelize");
 
 router.get("/posts", async (req, res) => {
-  const posts = await Post.findAll();
+  const posts = await Post.findAll({
+    order: [["id", "DESC"]],
+    attributes: [
+      "id",
+      "title",
+      "content",
+      [
+        sequelize.fn(
+          "strftime",
+          "%Y-%m-%d %H:%M:%S",
+          sequelize.col("createdAt")
+        ),
+        "dateTime",
+      ],
+      "isOpen",
+      "createdAt",
+      "updatedAt",
+    ],
+  });
 
   return res.json(posts);
 });
@@ -27,11 +46,11 @@ router.get("/posts/:id", async (req, res) => {
 });
 
 router.post("/posts", async (req, res) => {
-  const { title, content, isOpen } = req.body;
+  const { title, content } = req.body;
   const post = await Post.create({
     title,
     content,
-    isOpen,
+    isOpen: true,
   });
 
   if (post == null) {
@@ -44,8 +63,34 @@ router.post("/posts", async (req, res) => {
   return res.json(post);
 });
 
+router.patch("/posts/:id/hide", async (req, res) => {
+  const post = await Post.update(
+    { isOpen: false },
+    {
+      where: {
+        id: req.params.id,
+      },
+    }
+  );
+
+  return res.json(post);
+});
+
+router.patch("/posts/:id/show", async (req, res) => {
+  const post = await Post.update(
+    { isOpen: true },
+    {
+      where: {
+        id: req.params.id,
+      },
+    }
+  );
+
+  return res.json(post);
+});
+
 router.delete("/posts/:id", async (req, res) => {
-  const post = await Post.destory({
+  const post = await Post.destroy({
     where: {
       id: req.params.id,
     },
@@ -55,9 +100,9 @@ router.delete("/posts/:id", async (req, res) => {
 });
 
 router.patch("/posts/:id", async (req, res) => {
-  const { title, content, isOpen } = req.body;
+  const { title, content } = req.body;
   const post = await Post.update(
-    { title, content, isOpen },
+    { title, content },
     {
       where: {
         id: req.params.id,
