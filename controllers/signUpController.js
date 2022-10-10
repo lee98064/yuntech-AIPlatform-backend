@@ -5,8 +5,9 @@ const verifySignUpData = require("../middlewares/verifySignUpData");
 const notSignUp = require("../middlewares/notSignUp");
 const Mailer = require("../services/mailer");
 const RandomString = require("../services/randomString");
+const signUpTime = require("../middlewares/signUpTime");
 
-router.post("/signUp/createGroup", async (req, res) => {
+router.post("/signUp/createGroup", signUpTime, async (req, res) => {
   const tokenInfo = req.tokenInfo;
   const { groupName } = req.body;
 
@@ -67,7 +68,7 @@ router.post("/signUp/createGroup", async (req, res) => {
   });
 });
 
-router.post("/signUp/joinGroup", async (req, res) => {
+router.post("/signUp/joinGroup", signUpTime, async (req, res) => {
   const { inviteCode } = req.body;
   const tokenInfo = req.tokenInfo;
 
