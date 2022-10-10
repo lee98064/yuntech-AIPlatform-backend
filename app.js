@@ -15,6 +15,7 @@ const adminVerifyController = require("./controllers/admin/verifyController");
 const adminGroupController = require("./controllers/admin/groupController");
 const adminStudentController = require("./controllers/admin/studentController");
 const adminPostController = require("./controllers/admin/postController");
+const adminExportController = require("./controllers/admin/exportController");
 const adminAuthentication = require("./middlewares/adminAuthentication");
 
 dotenv.config();
@@ -37,6 +38,7 @@ app.use("/api/admin", adminAuthentication, adminVerifyController);
 app.use("/api/admin", adminAuthentication, adminGroupController);
 app.use("/api/admin", adminAuthentication, adminStudentController);
 app.use("/api/admin", adminAuthentication, adminPostController);
+app.use("/api/admin", adminAuthentication, adminExportController);
 
 app.use("/api", authController);
 app.use("/api", postController);
