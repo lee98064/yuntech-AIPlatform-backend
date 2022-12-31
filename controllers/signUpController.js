@@ -6,6 +6,7 @@ const notSignUp = require("../middlewares/notSignUp");
 const Mailer = require("../services/mailer");
 const RandomString = require("../services/randomString");
 const signUpTime = require("../middlewares/signUpTime");
+const requestIp = require("request-ip");
 
 router.post("/signUp/createGroup", signUpTime, async (req, res) => {
   const tokenInfo = req.tokenInfo;
@@ -61,6 +62,16 @@ router.post("/signUp/createGroup", signUpTime, async (req, res) => {
   student.GroupId = group.id;
 
   await student.save();
+
+  mgdb.collection("student").insertOne({
+    method: "createGroup",
+    groupId: group.id,
+    group: group.name,
+    student: student.studentID,
+    studentName: student.name,
+    datetime: new Date(),
+    ip: requestIp.getClientIp(req),
+  });
 
   return res.json({
     status: true,
@@ -118,6 +129,16 @@ router.post("/signUp/joinGroup", signUpTime, async (req, res) => {
 
   group.isVerify = false;
   await group.save();
+
+  mgdb.collection("student").insertOne({
+    method: "joinGroup",
+    groupId: group.id,
+    group: group.name,
+    student: student.studentID,
+    studentName: student.name,
+    datetime: new Date(),
+    ip: requestIp.getClientIp(req),
+  });
 
   return res.json({
     status: true,
