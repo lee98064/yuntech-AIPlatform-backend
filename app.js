@@ -22,6 +22,7 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT;
+const MongoClient = require("mongodb").MongoClient;
 
 app.use(express.json());
 app.use(cookieParser());
@@ -45,6 +46,12 @@ app.use("/api", postController);
 app.use("/api", authentication, userController);
 app.use("/api", authentication, signUpController);
 
-app.listen(port, () => {
-  console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+
+MongoClient.connect(process.env.MONGODB_CONNECT_STRING, (err, client) => {
+  if (err) return console.log(err);
+  mgdb = client.db(process.env.MONGODB_DB);
+  app.listen(port, () => {
+    console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+  });
 });
+
