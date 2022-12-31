@@ -62,6 +62,15 @@ router.post("/signUp/createGroup", signUpTime, async (req, res) => {
 
   await student.save();
 
+  mgdb.collection("student").insertOne({
+    method: "createGroup",
+    groupId: group.id,
+    group: group.name,
+    student: student.studentID,
+    studentName: student.name,
+    datetime: new Date(),
+  });
+
   return res.json({
     status: true,
     message: "組別建立成功！",

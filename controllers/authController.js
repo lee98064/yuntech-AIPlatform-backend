@@ -7,6 +7,8 @@ const { Student, PasswordReset } = require("../models");
 const authentication = require("../middlewares/authentication");
 const Mailer = require("../services/mailer");
 const RandomString = require("../services/randomString");
+const db = require("../models");
+const requestIp = require("request-ip");
 
 router.post("/auth/login", async (req, res) => {
   var { studentID, password } = req.body;
@@ -39,6 +41,13 @@ router.post("/auth/login", async (req, res) => {
 
     // 如果比對正確
     if (result) {
+      mgdb.collection("auth").insertOne({
+        method: "login",
+        status: true,
+        account: studentID,
+        datetime: new Date(),
+        ip: requestIp.getClientIp(req),
+      });
       return res.json({
         status: true,
         token: JWT.generate_token({
@@ -53,6 +62,13 @@ router.post("/auth/login", async (req, res) => {
     }
   }
 
+  mgdb.collection("auth").insertOne({
+    method: "login",
+    status: false,
+    account: studentID,
+    datetime: new Date(),
+    ip: requestIp.getClientIp(req),
+  });
   return res.status(401).json({
     status: false,
     message: "登入失敗！請檢查帳號或密碼！",
@@ -73,9 +89,25 @@ router.post("/auth/register", async (req, res) => {
   });
 
   if (isExisted) {
-    return res
-      .status(409)
-      .json({ status: false, message: "帳號，學號，Email重複註冊！" });
+    mgdb.collection("auth").insertOne(
+      {
+        method: "register",
+        status: false,
+        account: studentID.toUpperCase(),
+        email,
+        name,
+        lineID,
+        phone,
+        datetime: new Date(),
+        ip: requestIp.getClientIp(req),
+      },
+      (err, result) => {
+        if (err) console.log(err);
+        return res
+          .status(409)
+          .json({ status: false, message: "帳號，學號，Email重複註冊！" });
+      }
+    );
   }
 
   // hash Password
@@ -89,6 +121,17 @@ router.post("/auth/register", async (req, res) => {
     phone,
   });
 
+  mgdb.collection("auth").insertOne({
+    method: "register",
+    status: true,
+    account: studentID.toUpperCase(),
+    email,
+    name,
+    lineID,
+    phone,
+    datetime: new Date(),
+    ip: requestIp.getClientIp(req),
+  });
   return res.json({ status: true, message: "註冊成功，請前往收信確認！" });
 });
 
@@ -145,6 +188,15 @@ router.post("/auth/forget", async (req, res) => {
   const mailer = new Mailer();
   mailer.sendMail(student.email, "AI 報名平台報名資料", content);
 
+  mgdb.collection("auth").insertOne({
+    method: "forget",
+    status: true,
+    account: studentID.toUpperCase(),
+    email,
+    resetToken: passwordReset.token,
+    datetime: new Date(),
+    ip: requestIp.getClientIp(req),
+  });
   return res.json({
     status: true,
     message: "已送出重設信，請前往收信！",
@@ -194,6 +246,14 @@ router.post("/auth/resetPassword", async (req, res) => {
     }
   );
   await passwordReset.destroy();
+
+  mgdb.collection("auth").insertOne({
+    method: "resetpassword",
+    status: true,
+    resetToken,
+    datetime: new Date(),
+    ip: requestIp.getClientIp(req),
+  });
   return res.json({
     status: true,
     message: "密碼設定成功！",

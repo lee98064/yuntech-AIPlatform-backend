@@ -5,6 +5,7 @@ const JWT = require("../../services/jwt");
 const { Op } = require("sequelize");
 const { User } = require("../../models");
 const adminAuthentication = require("../../middlewares/adminAuthentication");
+const requestIp = require("request-ip");
 
 router.post("/auth/login", async (req, res) => {
   const { account, password } = req.body;
@@ -15,6 +16,13 @@ router.post("/auth/login", async (req, res) => {
   });
 
   if (user == null) {
+    mgdb.collection("auth").insertOne({
+      method: "adminlogin",
+      status: false,
+      account,
+      datetime: new Date(),
+      ip: requestIp.getClientIp(req),
+    });
     return res.status(401).json({
       status: false,
       message: "帳號或密碼錯誤！",
@@ -24,6 +32,13 @@ router.post("/auth/login", async (req, res) => {
   let result = await bcrypt.compare(password, user.password);
 
   if (result) {
+    mgdb.collection("auth").insertOne({
+      method: "adminlogin",
+      status: true,
+      account,
+      datetime: new Date(),
+      ip: requestIp.getClientIp(req),
+    });
     return res.json({
       status: true,
       token: JWT.generate_token({
@@ -34,6 +49,14 @@ router.post("/auth/login", async (req, res) => {
       }),
     });
   }
+
+  mgdb.collection("auth").insertOne({
+    method: "adminlogin",
+    status: false,
+    account,
+    datetime: new Date(),
+    ip: requestIp.getClientIp(req),
+  });
   return res.status(401).json({
     status: false,
     message: "帳號或密碼錯誤！",
