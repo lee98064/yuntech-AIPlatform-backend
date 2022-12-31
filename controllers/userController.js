@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const fs = require("fs");
 const { Student, Group } = require("../models");
+const requestIp = require("request-ip");
 
 router.get("/user", async (req, res) => {
   const tokenInfo = req.tokenInfo;
@@ -97,6 +98,16 @@ router.post("/user/upload", async (req, res) => {
       }
     );
 
+    mgdb.collection("student").insertOne({
+      method: "uploadFile",
+      path: student.studentImg,
+      filename: `${student.studentID}${getExtension(image.name)}`,
+      student: student.studentID,
+      studentName: student.name,
+      datetime: new Date(),
+      ip: requestIp.getClientIp(req),
+    });
+
     //send response
     res.send({
       status: true,
@@ -152,6 +163,16 @@ router.patch("/user/edit", async (req, res) => {
         message: "更新失敗，請檢查欄位是否都有填上！",
       });
     });
+  mgdb.collection("student").insertOne({
+    method: "updateUserData",
+    student: tokenInfo.studentID,
+    studentName: name,
+    email,
+    phone,
+    lineID,
+    datetime: new Date(),
+    ip: requestIp.getClientIp(req),
+  });
   return res.json({
     status: true,
     message: "更新成功！",

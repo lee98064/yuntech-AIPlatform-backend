@@ -4,6 +4,7 @@ const fs = require("fs");
 const { Op } = require("sequelize");
 const { Student, Group } = require("../../models");
 const Mailer = require("../../services/mailer");
+const requestIp = require("request-ip");
 
 router.get("/verify", async (req, res) => {
   const students = await Student.findAll({
@@ -93,6 +94,15 @@ router.post("/verify/pass", async (req, res) => {
 
   const mailer = new Mailer();
   mailer.sendMail(student.email, "AI 賽車報名平台", content);
+  
+  mgdb.collection("admin").insertOne({
+    method: "verify",
+    status: true,
+    studentID: student.studentID,
+    studentName: student.name,
+    datetime: new Date(),
+    ip: requestIp.getClientIp(req),
+  });
 
   return res.status(200).json({ status: true });
 });
@@ -120,6 +130,15 @@ router.post("/verify/unpass", async (req, res) => {
   const mailer = new Mailer();
   mailer.sendMail(student.email, "AI 賽車報名平台", content);
 
+  mgdb.collection("admin").insertOne({
+    method: "verify",
+    status: false,
+    studentID: student.studentID,
+    studentName: student.name,
+    datetime: new Date(),
+    ip: requestIp.getClientIp(req),
+  });
+  
   return res.status(200).json({ status: true });
 });
 
